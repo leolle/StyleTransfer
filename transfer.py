@@ -141,40 +141,42 @@ def run_bulk(config):
         fnames &= set(os.listdir(config.style_segment))
 
     for fname in tqdm.tqdm(fnames):
-        if not fname.endswith('.png'):
-            print('invalid file (should end with .png), ', fname)
-            continue
-        _content = os.path.join(config.content, fname)
-        _style = os.path.join(config.style, fname)
-        _content_segment = os.path.join(config.content_segment, fname) if config.content_segment else None
-        _style_segment = os.path.join(config.style_segment, fname) if config.style_segment else None
-        _output = os.path.join(config.output, fname)
+        try:
+            if not fname.endswith('.png'):
+                print('invalid file (should end with .png), ', fname)
+                continue
+            _content = os.path.join(config.content, fname)
+            _style = os.path.join(config.style, fname)
+            _content_segment = os.path.join(config.content_segment, fname) if config.content_segment else None
+            _style_segment = os.path.join(config.style_segment, fname) if config.style_segment else None
+            _output = os.path.join(config.output, fname)
 
-        content = open_image(_content, config.image_size).to(device)
-        style = open_image(_style, config.image_size).to(device)
-        content_segment = load_segment(_content_segment, config.image_size)
-        style_segment = load_segment(_style_segment, config.image_size)
+            content = open_image(_content, config.image_size).to(device)
+            style = open_image(_style, config.image_size).to(device)
+            content_segment = load_segment(_content_segment, config.image_size)
+            style_segment = load_segment(_style_segment, config.image_size)
 
-        if not config.transfer_all:
-            with Timer('Elapsed time in whole WCT: {}', config.verbose):
-                postfix = '_'.join(sorted(list(transfer_at)))
-                fname_output = _output.replace('.png', '_{}_{}.png'.format(config.option_unpool, postfix))
-                print('------ transfer:', _output)
-                wct2 = WCT2(transfer_at=transfer_at, option_unpool=config.option_unpool, device=device, verbose=config.verbose)
-                with torch.no_grad():
-                    img = wct2.transfer(content, style, content_segment, style_segment, alpha=config.alpha)
-                save_image(img.clamp_(0, 1), fname_output, padding=0)
-        else:
-            for _transfer_at in get_all_transfer():
+            if not config.transfer_all:
                 with Timer('Elapsed time in whole WCT: {}', config.verbose):
-                    postfix = '_'.join(sorted(list(_transfer_at)))
+                    postfix = '_'.join(sorted(list(transfer_at)))
                     fname_output = _output.replace('.png', '_{}_{}.png'.format(config.option_unpool, postfix))
-                    print('------ transfer:', fname)
-                    wct2 = WCT2(transfer_at=_transfer_at, option_unpool=config.option_unpool, device=device, verbose=config.verbose)
+                    print('------ transfer:', _output)
+                    wct2 = WCT2(transfer_at=transfer_at, option_unpool=config.option_unpool, device=device, verbose=config.verbose)
                     with torch.no_grad():
                         img = wct2.transfer(content, style, content_segment, style_segment, alpha=config.alpha)
                     save_image(img.clamp_(0, 1), fname_output, padding=0)
-
+            else:
+                for _transfer_at in get_all_transfer():
+                    with Timer('Elapsed time in whole WCT: {}', config.verbose):
+                        postfix = '_'.join(sorted(list(_transfer_at)))
+                        fname_output = _output.replace('.png', '_{}_{}.png'.format(config.option_unpool, postfix))
+                        print('------ transfer:', fname)
+                        wct2 = WCT2(transfer_at=_transfer_at, option_unpool=config.option_unpool, device=device, verbose=config.verbose)
+                        with torch.no_grad():
+                            img = wct2.transfer(content, style, content_segment, style_segment, alpha=config.alpha)
+                        save_image(img.clamp_(0, 1), fname_output, padding=0)
+        except:
+            continue
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
