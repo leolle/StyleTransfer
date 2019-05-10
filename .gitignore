@@ -1,4 +1,4 @@
 *.tar
 *.gz
 automated-deep-photo-style-transfer/*.png
-automated-deep-photo-style-transfer/*.json
+automated-deep-photo-style-transfer/result*
