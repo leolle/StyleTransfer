@@ -36,8 +36,8 @@ def open_image(image_path, image_size=None):
     _transforms.append(transforms.CenterCrop((h // 16 * 16, w // 16 * 16)))
     _transforms.append(transforms.ToTensor())
     transform = transforms.Compose(_transforms)
-    return transform(image).unsqueeze(0)
-
+    result = transform(image)[:3].unsqueeze(0)
+    return result
 
 def change_seg(seg):
     color_dict = {

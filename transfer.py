@@ -144,7 +144,7 @@ def run_bulk(config):
         try:
             if not fname.endswith('.png'):
                 print('invalid file (should end with .png), ', fname)
-                continue
+                # continue
             _content = os.path.join(config.content, fname)
             _style = os.path.join(config.style, fname)
             _content_segment = os.path.join(config.content_segment, fname) if config.content_segment else None
@@ -167,7 +167,7 @@ def run_bulk(config):
                     save_image(img.clamp_(0, 1), fname_output, padding=0)
             else:
                 for _transfer_at in get_all_transfer():
-                    with Timer('Elapsed time in whole WCT: {}', config.verbose):
+                    with Timunpooler('Elapsed time in whole WCT: {}', config.verbose):
                         postfix = '_'.join(sorted(list(_transfer_at)))
                         fname_output = _output.replace('.png', '_{}_{}.png'.format(config.option_unpool, postfix))
                         print('------ transfer:', fname)
